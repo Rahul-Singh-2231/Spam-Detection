@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-powered spam detection using Natural Language Processing. Analyze messages instantly with machine learning.">
+    <meta name="keywords" content="spam detection, AI, NLP, phishing, scam, machine learning, text analysis">
+    <meta name="author" content="SpamShield AI">
+    <meta name="theme-color" content="#6c5ce7">
+    <title>SpamShield AI — Intelligent Spam Detection</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Analyzing message with AI...</p>
+            <p class="loading-subtext">Running NLP pipeline</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="navbar" class="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <span class="logo-icon">🛡️</span>
+                <span class="logo-text gradient-text">SpamShield AI</span>
+            </a>
+            <div class="nav-links" id="nav-links">
+                <a href="#hero" class="nav-link active">Home</a>
+                <a href="#analyzer" class="nav-link">Analyzer</a>
+                <a href="#history" class="nav-link">History</a>
+                <a href="#about" class="nav-link">About</a>
+            </div>
+            <div class="nav-actions">
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+                <button id="hamburger" class="hamburger" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-badge"> Powered by Machine Learning</div>
+            <h1 class="hero-title">
+                <span class="gradient-text">AI-Powered</span><br>Spam Detection
+            </h1>
+            <p class="hero-subtitle">Advanced Natural Language Processing to protect you from spam, phishing, and scam messages. Instant analysis with explainable AI.</p>
+            <a href="#analyzer" class="hero-cta">
+                <span>Start Analyzing</span>
+                <span class="cta-arrow">→</span>
+            </a>
+            <div class="hero-stats">
+                <div class="stat">
+                    <span class="stat-value">99%+</span>
+                    <span class="stat-label">Accuracy</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">10+</span>
+                    <span class="stat-label">Threat Types</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">&lt; 1s</span>
+                    <span class="stat-label">Analysis Time</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Analyzer Section -->
+    <section id="analyzer" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Message <span class="gradient-text">Analyzer</span></h2>
+                <p class="section-subtitle">Paste or type any message to analyze it for spam, phishing, and scam content</p>
+            </div>
+            <div class="analyzer-card glass-card">
+                <div class="textarea-wrapper">
+                    <textarea id="message-input" class="message-textarea" placeholder="Type or paste a message to analyze..." maxlength="10000" rows="6"></textarea>
+                    <div class="char-counter"><span id="char-count">0</span> / 10,000</div>
+                </div>
+                <div class="analyzer-actions">
+                    <button id="analyze-btn" class="btn btn-primary">
+                        <span class="btn-icon">🔍</span>
+                        <span class="btn-text">Analyze</span>
+                        <span class="btn-spinner hidden"></span>
+                    </button>
+                    <button id="clear-btn" class="btn btn-outline">🗑️ Clear</button>
+                    <button id="example-btn" class="btn btn-outline">📝 Load Example</button>
+                    <button id="paste-btn" class="btn btn-outline">📋 Paste</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results" class="section hidden">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Analysis <span class="gradient-text">Results</span></h2>
+            </div>
+
+            <!-- Top row: Prediction + Confidence + Risk -->
+            <div class="results-overview">
+                <div class="result-card glass-card prediction-card">
+                    <h3>Prediction</h3>
+                    <div id="prediction-badge" class="prediction-badge"></div>
+                    <div id="prediction-label" class="prediction-label"></div>
+                </div>
+                <div class="result-card glass-card confidence-card">
+                    <h3>Confidence</h3>
+                    <div class="confidence-circle">
+                        <svg viewBox="0 0 120 120">
+                            <circle class="confidence-bg" cx="60" cy="60" r="54" />
+                            <circle id="confidence-ring" class="confidence-fill" cx="60" cy="60" r="54" />
+                        </svg>
+                        <div id="confidence-value" class="confidence-value">0%</div>
+                    </div>
+                </div>
+                <div class="result-card glass-card risk-card">
+                    <h3>Risk Level</h3>
+                    <div id="risk-label" class="risk-label"></div>
+                    <div class="risk-meter">
+                        <div id="risk-bar" class="risk-bar"></div>
+                    </div>
+                    <div class="probability-display">
+                        <span>Spam Probability:</span>
+                        <span id="spam-probability" class="probability-value">0%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Visual PDF Threat Report Card (Shown for Spam only) -->
+            <div id="spam-report-card" class="result-card report-card glass-card hidden">
+                <div class="report-header">
+                    <div class="report-title-group">
+                        <span class="report-badge">🚨 SECURITY THREAT ADVISORY</span>
+                        <h2>AI Cybersecurity Threat Certificate</h2>
+                    </div>
+                    <div class="report-meta-group">
+                        <div class="report-meta-item"><strong>Scan ID:</strong> <span id="report-scan-id">SCAN-XXXXX</span></div>
+                        <div class="report-meta-item"><strong>Severity:</strong> <span id="report-severity">CRITICAL</span></div>
+                    </div>
+                </div>
+                
+                <div class="report-divider"></div>
+                
+                <div class="report-grid">
+                    <div class="report-col">
+                        <h4>🔍 Threat Assessment</h4>
+                        <div class="report-field"><strong>Classification:</strong> <span class="badge badge-spam" style="background:#ff1744;color:white;padding:3px 8px;border-radius:4px;font-size:0.85rem;">SPAM</span></div>
+                        <div class="report-field"><strong>AI Confidence:</strong> <span id="report-confidence">0.0%</span></div>
+                        <div class="report-field"><strong>Threat Pattern:</strong> <span id="report-pattern">Multiple Risks</span></div>
+                    </div>
+                    <div class="report-col">
+                        <h4>📈 Analytics Summary</h4>
+                        <div class="report-field"><strong>Total Words:</strong> <span id="report-words">0</span></div>
+                        <div class="report-field"><strong>Suspicious Tokens:</strong> <span id="report-tokens">0</span></div>
+                        <div class="report-field"><strong>Risk Level:</strong> <span id="report-risk-level">Critical</span></div>
+                    </div>
+                </div>
+
+                <div class="report-section-title">Message Transcript</div>
+                <div class="report-transcript" id="report-transcript-text"></div>
+
+                <div class="report-section-title">AI Security Explanation</div>
+                <p class="report-summary" id="report-summary-text"></p>
+
+                <div class="report-actions">
+                    <button id="download-report-pdf-btn" class="btn btn-primary btn-report">
+                        <span>📥 Download Official Threat PDF Report</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Explanation -->
+            <div id="explanation-card" class="result-card glass-card explanation-card">
+                <h3>🧠 AI Explanation</h3>
+                <blockquote id="explanation-text" class="explanation-text"></blockquote>
+            </div>
+
+            <!-- Highlighted Words -->
+            <div id="highlighted-section" class="result-card glass-card">
+                <h3>🔍 Suspicious Words Detected</h3>
+                <div id="highlighted-words" class="highlighted-words"></div>
+            </div>
+
+            <!-- Reasoning -->
+            <div id="reasoning-section" class="result-card glass-card">
+                <h3>📋 Reasoning</h3>
+                <ul id="reasoning-list" class="reasoning-list"></ul>
+            </div>
+
+            <!-- Detected Threats -->
+            <div id="threats-section" class="result-card glass-card">
+                <h3>🚨 Detected Threats</h3>
+                <div id="threats-container" class="threats-grid"></div>
+            </div>
+
+            <!-- Suspicion Scores -->
+            <div id="scores-section" class="result-card glass-card">
+                <h3>📊 Suspicion Scores</h3>
+                <div id="scores-container" class="scores-container"></div>
+            </div>
+
+            <!-- NLP Statistics -->
+            <div id="nlp-stats-section" class="result-card glass-card">
+                <h3>📈 NLP Statistics</h3>
+                <div id="nlp-stats-grid" class="stats-grid"></div>
+            </div>
+
+            <!-- Text Statistics -->
+            <div id="text-stats-section" class="result-card glass-card">
+                <h3>📝 Text Statistics</h3>
+                <div id="text-stats-grid" class="stats-grid"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- History Section -->
+    <section id="history" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Analysis <span class="gradient-text">History</span></h2>
+                <p class="section-subtitle">Your previous analyses stored locally</p>
+            </div>
+            <div class="history-controls glass-card">
+                <div class="search-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="history-search" class="search-input" placeholder="Search history...">
+                </div>
+                <div class="history-actions">
+                    <button id="clear-history-btn" class="btn btn-outline btn-danger-outline">🗑️ Clear All</button>
+                    <div class="export-dropdown">
+                        <button class="btn btn-outline" id="export-toggle">📥 Export ▾</button>
+                        <div class="export-menu" id="export-menu">
+                            <button id="export-txt" class="export-option">📄 Export as TXT</button>
+                            <button id="export-json" class="export-option">📋 Export as JSON</button>
+                            <button id="export-pdf" class="export-option">📑 Export as PDF</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="history-list" class="history-list"></div>
+            <div id="history-empty" class="empty-state">
+                <div class="empty-icon">📭</div>
+                <p class="empty-title">No analysis history yet</p>
+                <p class="empty-subtitle">Analyze a message to see it appear here</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">About <span class="gradient-text">SpamShield AI</span></h2>
+                <p class="section-subtitle">How our AI-powered spam detection works</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">🧠</div>
+                    <h3>Machine Learning</h3>
+                    <p>Trained on thousands of real messages using Naive Bayes, Logistic Regression, and SVM classifiers with automatic best-model selection.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">📝</div>
+                    <h3>NLP Pipeline</h3>
+                    <p>Advanced text preprocessing with tokenization, lemmatization, stopword removal, and TF-IDF vectorization with unigram and bigram analysis.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Threat Detection</h3>
+                    <p>Identifies 10+ threat categories including phishing, lottery scams, banking fraud, crypto scams, and government impersonation.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">💡</div>
+                    <h3>Explainable AI</h3>
+                    <p>Every prediction comes with human-readable explanations, reasoning, and highlighted suspicious words so you understand WHY.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Entity Detection</h3>
+                    <p>Automatically detects URLs, email addresses, phone numbers, currency symbols, and cryptocurrency wallet addresses.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Rich Analytics</h3>
+                    <p>Detailed NLP statistics, suspicion scores, risk levels, and text analysis metrics for comprehensive message evaluation.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <span>🛡️</span>
+                    <span class="gradient-text">SpamShield AI</span>
+                </div>
+                <p class="footer-text">AI-Powered Spam Detection using Natural Language Processing</p>
+                <p class="footer-copyright">&copy; 2025 SpamShield AI. Built with 🤖 Machine Learning &amp; ❤️ NLP.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jsPDF CDN for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+    <!-- Application JavaScript -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
