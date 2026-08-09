@@ -684,10 +684,24 @@ function exportAsJson() {
     showToast('History exported as JSON', 'success');
 }
 
+function getJsPDFClass() {
+    if (window.jspdf && window.jspdf.jsPDF) {
+        return window.jspdf.jsPDF;
+    }
+    if (window.jsPDF) {
+        return window.jsPDF;
+    }
+    return null;
+}
+
 function exportAsPdf() {
     try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        const jsPDFClass = getJsPDFClass();
+        if (!jsPDFClass) {
+            showToast('PDF generator loading. Please try again in a moment.', 'warning');
+            return;
+        }
+        const doc = new jsPDFClass();
 
         // Title
         doc.setFontSize(20);
@@ -746,8 +760,12 @@ function exportAsPdf() {
 
 function downloadSpamReportPdf(data, message) {
     try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        const jsPDFClass = getJsPDFClass();
+        if (!jsPDFClass) {
+            showToast('PDF generator loading. Please try again in a moment.', 'warning');
+            return;
+        }
+        const doc = new jsPDFClass();
 
         const scanId = document.getElementById('report-scan-id').textContent;
         const timestamp = new Date().toLocaleString();
@@ -771,7 +789,7 @@ function downloadSpamReportPdf(data, message) {
         doc.setFont('Helvetica', 'normal');
         doc.text(`Scan Reference: ${scanId}`, 20, 40);
         doc.text(`Generated: ${timestamp}`, 20, 46);
-        doc.text(`Risk Status: ${data.risk_level.toUpperCase()} THREAT`, 20, 52);
+        doc.text(`Risk Status: ${(data.risk_level || 'HIGH').toUpperCase()} THREAT`, 20, 52);
 
         // 3. Grid box - Threat Assessment Summary
         doc.setDrawColor(255, 23, 68);
@@ -795,18 +813,21 @@ function downloadSpamReportPdf(data, message) {
         doc.setFont('Helvetica', 'normal');
         doc.text(`AI Confidence:`, 25, 82);
         doc.setFont('Helvetica', 'bold');
-        doc.text(`${data.confidence.toFixed(1)}%`, 55, 82);
+        doc.text(`${(data.confidence || 0).toFixed(1)}%`, 55, 82);
 
         doc.setFont('Helvetica', 'normal');
         doc.text(`Risk Level:`, 25, 88);
         doc.setFont('Helvetica', 'bold');
-        // Parse hex color for jsPDF text color
-        const hex = data.risk_color || '#ff1744';
-        const r = parseInt(hex.slice(1, 3), 16);
-        const g = parseInt(hex.slice(3, 5), 16);
-        const b = parseInt(hex.slice(5, 7), 16);
+        
+        // Parse hex color safely for jsPDF text color
+        let hex = (data.risk_color || '#ff1744').trim();
+        if (!hex.startsWith('#')) hex = '#' + hex;
+        if (hex.length < 7) hex = '#ff1744';
+        const r = parseInt(hex.slice(1, 3), 16) || 255;
+        const g = parseInt(hex.slice(3, 5), 16) || 23;
+        const b = parseInt(hex.slice(5, 7), 16) || 68;
         doc.setTextColor(r, g, b);
-        doc.text(`${data.risk_level}`, 55, 88);
+        doc.text(`${data.risk_level || 'High'}`, 55, 88);
         
         doc.setTextColor(50, 50, 50);
         doc.setFont('Helvetica', 'normal');
@@ -1114,6 +1135,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // Setup keyboard shortcuts
     setupKeyboardShortcuts();
 
+    // Share Modal Event Listeners
+    const shareNavBtn = document.getElementById('share-btn');
+    if (shareNavBtn) {
+        shareNavBtn.addEventListener('click', openShareModal);
+    }
+
+    const closeShareBtn = document.getElementById('close-share-modal');
+    if (closeShareBtn) {
+        closeShareBtn.addEventListener('click', closeShareModal);
+    }
+
+    const copyShareBtn = document.getElementById('copy-share-url-btn');
+    if (copyShareBtn) {
+        copyShareBtn.addEventListener('click', copyShareUrl);
+    }
+
+    const shareModal = document.getElementById('share-modal');
+    if (shareModal) {
+        shareModal.addEventListener('click', (e) => {
+            if (e.target === shareModal) {
+                closeShareModal();
+            }
+        });
+    }
+
     // Textarea auto-resize hint
     const textarea = document.getElementById('message-input');
     textarea.addEventListener('focus', () => {
@@ -1123,3 +1169,63 @@ document.addEventListener('DOMContentLoaded', () => {
         textarea.closest('.textarea-wrapper').style.boxShadow = 'none';
     });
 });
+
+// ============================================
+// Share & QR Code Modal Functions
+// ============================================
+let qrCodeInstance = null;
+
+async function openShareModal() {
+    const modal = document.getElementById('share-modal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+
+    let shareUrl = 'https://1b8f0be87cbca4.lhr.life';
+    try {
+        const res = await fetch('/api/share-info');
+        if (res.ok) {
+            const data = await res.json();
+            if (data.public_url) {
+                shareUrl = data.public_url;
+            } else if (data.local_url) {
+                shareUrl = data.local_url;
+            }
+        }
+    } catch (e) {
+        console.warn('Could not fetch share-info:', e);
+    }
+
+    const input = document.getElementById('share-url-input');
+    if (input) input.value = shareUrl;
+
+    const qrContainer = document.getElementById('qrcode-box');
+    if (qrContainer && window.QRCode) {
+        qrContainer.innerHTML = '';
+        qrCodeInstance = new QRCode(qrContainer, {
+            text: shareUrl,
+            width: 180,
+            height: 180,
+            colorDark: '#0f172a',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    }
+}
+
+function closeShareModal() {
+    const modal = document.getElementById('share-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function copyShareUrl() {
+    const input = document.getElementById('share-url-input');
+    if (input && input.value) {
+        navigator.clipboard.writeText(input.value).then(() => {
+            showToast('Network URL copied! Share it with your phone.', 'success');
+        }).catch(() => {
+            input.select();
+            document.execCommand('copy');
+            showToast('Network URL copied!', 'success');
+        });
+    }
+}
