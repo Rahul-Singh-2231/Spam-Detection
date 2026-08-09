@@ -40,6 +40,9 @@
                 <a href="#about" class="nav-link">About</a>
             </div>
             <div class="nav-actions">
+                <button id="share-btn" class="btn btn-outline share-nav-btn" aria-label="Share to Mobile">
+                    <span>📱 Share</span>
+                </button>
                 <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
                     <span class="theme-icon">🌙</span>
                 </button>
@@ -317,14 +320,43 @@
                     <span>🛡️</span>
                     <span class="gradient-text">SpamShield AI</span>
                 </div>
-                <p class="footer-text">AI-Powered Spam Detection using Natural Language Processing</p>
-                <p class="footer-copyright">&copy; 2025 SpamShield AI. Built with 🤖 Machine Learning &amp; ❤️ NLP.</p>
+                <p class="footer-text">AI-Powered Spam Detection</p>
             </div>
         </div>
     </footer>
 
-    <!-- jsPDF CDN for PDF export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+    <!-- Share & QR Code Modal -->
+    <div id="share-modal" class="modal-overlay hidden">
+        <div class="modal-card glass-card">
+            <button id="close-share-modal" class="modal-close-btn" aria-label="Close modal">&times;</button>
+            <div class="modal-header">
+                <span class="modal-icon">📱</span>
+                <h2>Open on Mobile Phone</h2>
+                <p>Scan the QR code with your phone camera or copy the network URL below</p>
+            </div>
+            
+            <div class="qr-container">
+                <div id="qrcode-box" class="qrcode-box"></div>
+            </div>
+
+            <div class="share-url-box">
+                <label for="share-url-input">Wi-Fi Network URL:</label>
+                <div class="url-input-group">
+                    <input type="text" id="share-url-input" readonly value="http://172.20.10.14:5000">
+                    <button id="copy-share-url-btn" class="btn btn-primary">📋 Copy</button>
+                </div>
+            </div>
+
+            <div class="share-hint">
+                💡 <strong>Connect to Wi-Fi:</strong> Make sure your phone is connected to the same Wi-Fi network as this PC.
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Generator local library -->
+    <script src="/static/js/qrcode.min.js"></script>
+    <!-- jsPDF local library for PDF export -->
+    <script src="/static/js/jspdf.umd.min.js"></script>
     <!-- Application JavaScript -->
     <script src="/static/js/app.js"></script>
 </body>
