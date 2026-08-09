@@ -43,6 +43,12 @@ class SpamPredictor:
         self.preprocessor = TextPreprocessor()
         self.feature_extractor = FeatureExtractor()
 
+        # Warmup NLP preprocessor and WordNet lazy loader during server startup
+        try:
+            self.preprocessor.preprocess("Warmup message to pre-load WordNet and NLTK models.")
+        except Exception:
+            pass
+
     def predict(self, message):
         """
         Predict whether a message is spam or ham with detailed analysis.
