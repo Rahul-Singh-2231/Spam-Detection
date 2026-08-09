@@ -4,11 +4,12 @@ Provides REST API endpoints for spam prediction and health monitoring.
 """
 
 import os
+import socket
+import time
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from predict import SpamPredictor
 from dotenv import load_dotenv
-import time
 
 load_dotenv()
 
@@ -31,9 +32,36 @@ def get_predictor():
     return predictor
 
 
+# Pre-warm model and NLTK on startup
+get_predictor()
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+@app.route('/api/share-info')
+def share_info():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8', 80))
+        local_ip = s.getsockname()[0]
+        s.close()
+    except Exception:
+        local_ip = '127.0.0.1'
+    
+    port = int(os.environ.get('PORT', 5000))
+    local_url = f"http://{local_ip}:{port}"
+    public_url = os.environ.get('PUBLIC_URL', 'https://1b8f0be87cbca4.lhr.life')
+    
+    return jsonify({
+        'local_ip': local_ip,
+        'port': port,
+        'local_url': local_url,
+        'public_url': public_url,
+        'instructions': f"Anyone on any mobile network or different Wi-Fi can open: {public_url}"
+    })
 
 
 @app.route('/health')
