@@ -15,24 +15,36 @@ class TextPreprocessor:
     """Complete NLP text preprocessing pipeline for spam detection."""
 
     def __init__(self):
-        """Initialize NLTK resources and download required data."""
-        nltk_resources = [
-            'punkt',
-            'punkt_tab',
-            'stopwords',
-            'wordnet',
-            'omw-1.4',
-            'averaged_perceptron_tagger',
-            'averaged_perceptron_tagger_eng'
-        ]
+        """Initialize NLTK resources and pre-compile regex patterns for ultra-fast processing."""
+        nltk_resources = ['punkt', 'stopwords', 'wordnet', 'omw-1.4']
         for resource in nltk_resources:
             try:
-                nltk.download(resource, quiet=True)
-            except Exception as e:
-                print(f"Warning: Could not download NLTK resource '{resource}': {e}")
+                nltk.data.find(f'tokenizers/{resource}' if 'punkt' in resource else f'corpora/{resource}')
+            except LookupError:
+                try:
+                    nltk.download(resource, quiet=True)
+                except Exception:
+                    pass
 
         self.stop_words = set(stopwords.words('english'))
         self.lemmatizer = WordNetLemmatizer()
+
+        # Pre-compile regex patterns for sub-millisecond execution
+        self._url_pattern = re.compile(r'https?://\S+|www\.\S+')
+        self._email_pattern = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')
+        self._phone_pattern = re.compile(r'(\+?\d{1,3}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}')
+        self._currency_pattern = re.compile(r'[\$£€¥₹₿]\s*[\d,]+\.?\d*')
+        self._currency_symbol_pattern = re.compile(r'[\$£€¥₹₿]')
+        self._html_pattern = re.compile(r'<[^>]+>')
+        self._emoji_pattern = re.compile(
+            "["
+            "\U0001F600-\U0001F64F\U0001F300-\U0001F5FF\U0001F680-\U0001F6FF"
+            "\U0001F1E0-\U0001F1FF\U00002702-\U000027B0\U000024C2-\U0001F251"
+            "\U0001f926-\U0001f937\U00010000-\U0010ffff\u2640-\u2642\u2600-\u2B55"
+            "\u200d\u23cf\u23e9\u231a\ufe0f\u3030"
+            "]+",
+            flags=re.UNICODE
+        )
 
         # Storage for detected entities during preprocessing
         self._detected_urls = []
