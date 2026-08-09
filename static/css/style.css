@@ -1959,3 +1959,137 @@ body {
     box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
 }
 
+/* ============================================
+   Share & QR Code Modal
+   ============================================ */
+.share-nav-btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-card {
+    position: relative;
+    max-width: 440px;
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 32px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.modal-close-btn:hover {
+    color: var(--text-primary);
+}
+
+.modal-header .modal-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.modal-header h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.modal-header p {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+.qr-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.qrcode-box {
+    padding: 16px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.share-url-box {
+    text-align: left;
+    margin-bottom: 16px;
+}
+
+.share-url-box label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    display: block;
+}
+
+.url-input-group {
+    display: flex;
+    gap: 8px;
+}
+
+.url-input-group input {
+    flex: 1;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: monospace;
+}
+
+.share-hint {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    background: rgba(108, 92, 231, 0.08);
+    padding: 10px 14px;
+    border-radius: 10px;
+    text-align: left;
+    line-height: 1.4;
+}
+
